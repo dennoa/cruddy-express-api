@@ -1,0 +1,32 @@
+{
+  "name": "cruddy-express-api",
+  "version": "1.0.0",
+  "description": "CRUD stuff to help with a REST api",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dennoa/cruddy-express-api.git"
+  },
+  "keywords": [
+    "crud"
+  ],
+  "author": "dennoa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dennoa/cruddy-express-api/issues"
+  },
+  "homepage": "https://github.com/dennoa/cruddy-express-api#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "lodash": "^4.15.0",
+    "promise-to-respond": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2",
+    "sinon": "^1.17.5"
+  }
+}
