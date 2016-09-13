@@ -1,6 +1,6 @@
 {
   "name": "cruddy-express-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CRUD stuff to help with a REST api",
   "main": "index.js",
   "scripts": {
