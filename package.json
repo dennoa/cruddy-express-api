@@ -22,7 +22,7 @@
   "dependencies": {
     "express": "^4.14.0",
     "lodash": "^4.15.0",
-    "promise-to-respond": "^1.0.0"
+    "promise-to-respond": "^1.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
