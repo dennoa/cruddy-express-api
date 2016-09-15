@@ -135,7 +135,7 @@ crudMiddleware.routes works with requests like this:
         write: { name: null, description: null }
       },
       reqParamId: '_id',
-      errorResponses: errorResponses,
+      getErrorResponses: getErrorResponses,
       errorDefinitions: errorDefinitions,
       searchProperties: searchControlProperties
     }
@@ -147,6 +147,7 @@ crudMiddleware.routes works with requests like this:
 * tag.read can specify an alternate tag for retrieval operations.
 * tag.write can specify an alternate tag for update operations.
 * reqParamId is the id that will be used for the GET and DELETE operations.
-* errorResponses can be overridden. Defaults include 400, 401, 404 and 500.
+* getErrorResponses can be overridden. This is a function that can be passed { exclude: ? } to leave out any of the included errors: 400, 401, 404 and 500.
+  The exclude option can be a string or an array.
 * errorDefinitions can be overridden. Defaults include validation-errors (400) and system-error (500).
 * searchProperties can be overridden. Default provides property docs for the skip and limit search controls.
