@@ -21,10 +21,10 @@ describe('crud-middleware get operation', ()=> {
     });
   });
 
-  it('should get a model by key', (done) => {
-    let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
+  it('should get a model by _id', (done) => {
+    let doc = { _id: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.get.returns(new Promise(resolve => resolve(doc)));
-    req.params.key = doc.key;
+    req.params._id = doc._id;
     crudMiddlewareInstance.get(req, res).then(found => {
       expect(crud.get.firstCall.args[0]).to.deep.equal(req.params);
       expect(found).to.deep.equal(doc);
@@ -32,9 +32,9 @@ describe('crud-middleware get operation', ()=> {
     });
   });
 
-  it('should respond with any errors encountered when getting a model by key', (done)=> {
+  it('should respond with any errors encountered when getting a model by _id', (done)=> {
     crud.get.returns(new Promise((resolve, reject)=> { reject(expectedError); }));
-    req.params.key = 'some-key';
+    req.params._id = 'some-key';
     crudMiddlewareInstance.get(req, res).catch(err => {
       expect(err).to.equal(expectedError);
       done();

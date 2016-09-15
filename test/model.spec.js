@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const crudModel = require('../lib').model;
@@ -17,13 +18,9 @@ describe('crud model', ()=> {
         findOne: sinon.stub().returns({ exec: findExec }),
         find: sinon.stub().returns({ exec: findExec })
       },
-      getDefaultValues: () => null,
-      getKeyConditions: (doc => { return { key: doc.key }; })
+      getKeyConditions: doc => { return { key: doc.key }; }
     };
     crudInstance = crudModel(options);
-  });
-
-  afterEach(()=> {
   });
 
   it('should create a new model', (done)=> {
@@ -52,6 +49,30 @@ describe('crud model', ()=> {
       expect(args.key).to.equal(doc.key);
       expect(args.dateFrom).to.equal(dateFrom);
       expect(args.accessCount).to.equal(0);
+      done();
+    });
+  });
+
+  it('should allow the document to be transformed when creating a new model', (done)=> {
+    let dateFrom = new Date();
+    options.getDefaultValues = () => {
+      return {
+        dateFrom: dateFrom,
+        accessCount: 0
+      };
+    };
+    options.transformForSave = doc => {
+      doc.extra = 'field';
+      return doc;
+    };
+    let doc = { key: 'some key' };
+    crudInstance = crudModel(options);
+    crudInstance.create(doc).then(()=> {
+      let args = options.model.create.firstCall.args[0];
+      expect(args.key).to.equal(doc.key);
+      expect(args.dateFrom).to.equal(dateFrom);
+      expect(args.accessCount).to.equal(0);
+      expect(args.extra).to.equal('field');
       done();
     });
   });
@@ -89,6 +110,18 @@ describe('crud model', ()=> {
       expect(updated.dateFrom).to.equal(existing.dateFrom);
       expect(updated.dateTo).to.equal(doc.dateTo);
       expect(updated.isAdmin).to.equal(doc.isAdmin);
+      done();
+    });
+  });
+
+  it('should allow the document to be transformed when updating an existing model', (done) => {
+    options.transformForSave = doc => null;
+    crudInstance = crudModel(options);
+    let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
+    findExec.returns(new Promise(resolve => resolve(existing)));
+    let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
+    crudInstance.update(doc).then(updated => {
+      expect(typeof updated.dateTo).to.equal('undefined');
       done();
     });
   });
