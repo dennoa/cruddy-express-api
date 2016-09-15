@@ -15,13 +15,7 @@ Comprises a model to expose the various functions and express middleware to rout
     const MyMongooseModel = require('./my-model');
 
     const crudModel = require('cruddy-express-api').model({
-      model: MyMongooseModel,
-      getKeyConditions: doc => { 
-        return { key: doc.key }; 
-      }),
-      getDefaultValues: () => { 
-        return { rating: 3 }; 
-      }
+      model: MyMongooseModel
     });
     
     module.exports = _.merge({
@@ -79,7 +73,7 @@ crudMiddleware.routes works with requests like this:
 
     {
       getKeyConditions: doc => { 
-        return { key: doc.key }; 
+        return { _id: doc._id }; 
       },
       getDefaultValues: () => null,
       transformForSave: doc => doc
