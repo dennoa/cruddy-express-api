@@ -114,6 +114,17 @@ describe('crud model', ()=> {
     });
   });
 
+  it('should replace arrays when updating an existing model', (done) => {
+    let existing = { key: 'some key', dateFrom: new Date(), somArray: [{ hey: 'there' },{ hi: 'there' }], save: sinon.stub().yields() };
+    findExec.returns(new Promise(resolve => resolve(existing)));
+    let doc = { key: existing.key, dateTo: new Date(), isAdmin: true, somArray: [{ hey: 'mate' }] };
+    crudInstance.update(doc).then(updated => {
+      expect(updated.somArray.length).to.equal(1);
+      expect(updated.somArray[0].hey).to.equal('mate');
+      done();
+    });
+  });
+
   it('should allow the document to be transformed when updating an existing model', (done) => {
     options.transformForSave = doc => null;
     crudInstance = crudModel(options);
