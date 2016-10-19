@@ -59,7 +59,7 @@ describe('swagger docs', ()=> {
     });
   });
 
-  ['', '-creating', '-updating', '-finding'].forEach(suffix => {
+  ['', '-creating', '-updating', '-finding', '-count'].forEach(suffix => {
     it('should generate definitions for my-entity' + suffix, () => {
       let docs = crudSwagger(options).docs;
       expect(!!docs.definitions['my-entity' + suffix]).to.equal(true);

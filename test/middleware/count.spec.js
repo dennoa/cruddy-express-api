@@ -4,20 +4,18 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const crudMiddleware = require('../../lib').middleware;
 
-describe('crud-middleware find operation', ()=> {
+describe('crud-middleware count operation', ()=> {
 
   let expectedError = 'Expected for testing';
   let req, res, options, crud, crudMiddlewareInstance;
-  let skip, limit, exec;
+  let exec;
 
   beforeEach(()=> {
     req = { body: {} };
     res = { status: sinon.stub().returns({ json: sinon.stub() })};
-    exec = sinon.stub().returns(Promise.resolve([]));
-    limit = sinon.stub().returns({ exec: exec });
-    skip = sinon.stub().returns({ limit: limit });
+    exec = sinon.stub().returns(Promise.resolve(0));
     crud = {
-      find: sinon.stub().returns({ skip : skip })
+      count: sinon.stub().returns({ exec : exec })
     };
     options = {
       getCrudModel: () => crud,
@@ -27,25 +25,24 @@ describe('crud-middleware find operation', ()=> {
     crudMiddlewareInstance = crudMiddleware(options);
   });
 
-  it('should find models', (done) => {
-    let docs = [{ key: '234', dateFrom: '2016-09-06T07:25:10.759Z' }, { key: 'abc', dateFrom: '2016-10-06T07:25:10.759Z' }];
-    exec.returns(Promise.resolve(docs));
-    crudMiddlewareInstance.find(req, res).then(found => {
-      expect(found).to.deep.equal(docs);
+  it('should count models', (done) => {
+    exec.returns(Promise.resolve(3));
+    crudMiddlewareInstance.count(req, res).then(result => {
+      expect(result.count).to.equal(3);
       done();
     });
   });
 
-  it('should run request validation when finding models', (done) => {
-    crudMiddlewareInstance.find(req, res).then(found => {
+  it('should run find request validation when counting models', (done) => {
+    crudMiddlewareInstance.count(req, res).then(found => {
       expect(options.validateRequest.calledWith(req, crudMiddlewareInstance.options.find.rules)).to.equal(true);
       done();
     });
   });
 
-  it('should respond with any unexpected error encountered when finding models', (done) => {
+  it('should respond with any unexpected error encountered when counting models', (done) => {
     exec.returns(Promise.reject(expectedError));
-    crudMiddlewareInstance.find(req, res).catch(err => {
+    crudMiddlewareInstance.count(req, res).catch(err => {
       expect(err).to.deep.equal(expectedError);
       done();
     });

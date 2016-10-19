@@ -40,6 +40,7 @@ crudMiddleware.routes works with requests like this:
 * POST / to create
 * PUT / to update
 * POST /find to search using the data in the request body
+* POST /count to count using the data in the request body
 * GET /:key to get by key
 * DELETE /:key to remove
 
@@ -113,7 +114,7 @@ crudMiddleware.routes works with requests like this:
 * validateRequest is a way to hook into validation middleware like express-validator. It is called for create, update and find requests.
 * create.rules are the validation rules that will be passed to validateRequest on create.
 * update.rules are the validation rules that will be passed to validateRequest on update.
-* find.rules are the validation rules that will be passed to validateRequest on find.
+* find.rules are the validation rules that will be passed to validateRequest on find and count.
 * find.getControls is a function that is passed the req.body and returns { skip, limit } to be appended to the query returned from crudModel.find.
 * find.getConditions is a function that is passed the req.body and returns the relevant mongoose conditions for the find operation.
 * reqParamId is the name of the request parameter used on the GET and DELETE requests. 
@@ -151,3 +152,11 @@ crudMiddleware.routes works with requests like this:
   The exclude option can be a string or an array.
 * errorDefinitions can be overridden. Defaults include validation-errors (400) and system-error (500).
 * searchProperties can be overridden. Default provides property docs for the skip and limit search controls.
+
+Docs are created for all of the paths accessible via the middleware and also for the following definitions:
+* #/definitions/{entity-name} is the schema provided via entity.schema. It is used in the response for create, update, find and get
+* #/definitions/{entity-name}-updating defines the parameters allowable on an update request
+* #/definitions/{entity-name}-creating defines the parameters allowable on a create request
+* #/definitions/{entity-name}-finding defines the parameters allowable on a find request. These are the searchProperties
+* #/definitions/{entity-name}-counting defines the parameters allowable on a count request. These are the searchProperties without skip and limit
+* #/definitions/{entity-name}-count defines the response to a count request

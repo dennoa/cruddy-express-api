@@ -7,16 +7,18 @@ const crudModel = require('../lib').model;
 
 describe('crud model', ()=> {
 
-  let findExec, options, crudInstance;
+  let findExec, countExec, options, crudInstance;
   let expectedError = 'Expected for testing';
 
   beforeEach(()=> {
-    findExec = sinon.stub().returns(new Promise(resolve => resolve(null)));
+    findExec = sinon.stub().returns(Promise.resolve(null));
+    countExec = sinon.stub().returns(Promise.resolve(null));
     options = {
       model: {
-        create: sinon.stub().returns(new Promise(resolve => resolve(null))),
+        create: sinon.stub().returns(Promise.resolve(null)),
         findOne: sinon.stub().returns({ exec: findExec }),
-        find: sinon.stub().returns({ exec: findExec })
+        find: sinon.stub().returns({ exec: findExec }),
+        count: sinon.stub().returns({ exec: countExec })
       },
       getKeyConditions: doc => { return { key: doc.key }; }
     };
@@ -183,6 +185,14 @@ describe('crud model', ()=> {
     let conditions = { dateFrom: { $gte: new Date() }};
     crudInstance.find(conditions).exec().then(results => {
       expect(options.model.find.calledWith(conditions)).to.equal(true);
+      done();
+    });
+  });
+
+  it('should count models using the provided conditions', (done) => {
+    let conditions = { dateFrom: { $gte: new Date() }};
+    crudInstance.count(conditions).exec().then(results => {
+      expect(options.model.count.calledWith(conditions)).to.equal(true);
       done();
     });
   });
