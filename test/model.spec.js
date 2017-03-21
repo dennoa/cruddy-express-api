@@ -79,6 +79,33 @@ describe('crud model', ()=> {
     });
   });
 
+  it('should allow the default values function to return a Promise', (done)=> {
+    let dateFrom = new Date();
+    options.getDefaultValues = () => new Promise(resolve => process.nextTick(() => resolve({ dateFrom: dateFrom, accessCount: 0 })));
+    let doc = { key: 'some key' };
+    crudInstance = crudModel(options);
+    crudInstance.create(doc).then(()=> {
+      let args = options.model.create.firstCall.args[0];
+      expect(args.key).to.equal(doc.key);
+      expect(args.dateFrom).to.equal(dateFrom);
+      expect(args.accessCount).to.equal(0);
+      done();
+    });
+  });
+
+  it('should allow the save transformation function to return a Promise', (done)=> {
+    let dateFrom = new Date();
+    options.transformForSave = doc => new Promise(resolve => process.nextTick(() => resolve(Object.assign({ extra: 'field' }, doc))));
+    let doc = { key: 'some key' };
+    crudInstance = crudModel(options);
+    crudInstance.create(doc).then(()=> {
+      let args = options.model.create.firstCall.args[0];
+      expect(args.key).to.equal(doc.key);
+      expect(args.extra).to.equal('field');
+      done();
+    });
+  });
+
   it('should get an existing model', (done) => {
     let existing = { key: 'some key', dateFrom: new Date() };
     findExec.returns(new Promise(resolve => resolve(existing)));
@@ -128,13 +155,25 @@ describe('crud model', ()=> {
   });
 
   it('should allow the document to be transformed when updating an existing model', (done) => {
-    options.transformForSave = doc => null;
+    options.transformForSave = doc => Object.assign(doc, { dateTo: null });
     crudInstance = crudModel(options);
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
     findExec.returns(new Promise(resolve => resolve(existing)));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).then(updated => {
-      expect(typeof updated.dateTo).to.equal('undefined');
+      expect(updated.dateTo).to.equal(null);
+      done();
+    });
+  });
+
+  it('should allow the transformation function to return a Promise when updating an existing model', (done) => {
+    options.transformForSave = doc => new Promise(resolve => process.nextTick(() => resolve(Object.assign(doc, { dateTo: null }))));
+    crudInstance = crudModel(options);
+    let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
+    findExec.returns(new Promise(resolve => resolve(existing)));
+    let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
+    crudInstance.update(doc).then(updated => {
+      expect(updated.dateTo).to.equal(null);
       done();
     });
   });

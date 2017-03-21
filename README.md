@@ -81,7 +81,7 @@ crudMiddleware.routes works with requests like this:
     }
 
 * getKeyConditions is used by the update method to extract mongoose findOne conditions from the document being updated.
-* getDefaultValues is used by the create method to include default values in the document being created
+* getDefaultValues is used by the create method to include default values in the document being created.
 * transformForSave is used by both create and update to transform the incoming document before it is saved.
 
 ### Middleware
