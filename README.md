@@ -73,9 +73,7 @@ crudMiddleware.routes works with requests like this:
 ### Model
 
     {
-      getKeyConditions: doc => { 
-        return { _id: doc._id }; 
-      },
+      getKeyConditions: doc => ({ _id: doc._id }),
       getDefaultValues: () => null,
       transformForSave: doc => doc
     }

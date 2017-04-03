@@ -20,7 +20,7 @@ describe('crud model', ()=> {
         find: sinon.stub().returns({ exec: findExec }),
         count: sinon.stub().returns({ exec: countExec })
       },
-      getKeyConditions: doc => { return { key: doc.key }; }
+      getKeyConditions: doc => ({ key: doc.key })
     };
     crudInstance = crudModel(options);
   });
@@ -174,6 +174,28 @@ describe('crud model', ()=> {
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).then(updated => {
       expect(updated.dateTo).to.equal(null);
+      done();
+    });
+  });
+
+  it('should allow the getKeyConditions function to return a Promise when updating an existing model', (done) => {
+    options.getKeyConditions = doc => new Promise(resolve => process.nextTick(() => resolve({ key: doc.key })));
+    crudInstance = crudModel(options);
+    let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
+    findExec.returns(new Promise(resolve => resolve(existing)));
+    let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
+    crudInstance.update(doc).then(updated => {
+      expect(options.model.findOne.firstCall.args[0]).to.deep.equal({ key: doc.key });
+      done();
+    });
+  });
+
+  it('should fail to update when the getKeyConditions function Promise rejects', (done) => {
+    options.getKeyConditions = doc => Promise.reject(expectedError);
+    crudInstance = crudModel(options);
+    let doc = { key: 'key', dateTo: new Date(), isAdmin: true };
+    crudInstance.update(doc).catch(err => {
+      expect(err).to.equal(expectedError);
       done();
     });
   });
