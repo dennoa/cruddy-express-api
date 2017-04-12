@@ -106,7 +106,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should get an existing model', (done) => {
+  it('should get an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date() };
     findExec.returns(new Promise(resolve => resolve(existing)));
     crudInstance.get({ key: existing.key }).then(found => {
@@ -115,14 +115,14 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should reject with an empty reason when trying to get a model that does not exist', (done) => {
+  it('should reject with an empty reason when trying to get a model that does not exist', done => {
     crudInstance.get({ key: 'not found' }).catch(reason => {
       expect(typeof reason === 'undefined').to.equal(true);
       done();
     });
   });
 
-  it('should reject with an error when it fails to get a model because of something unexpected', (done) => {
+  it('should reject with an error when it fails to get a model because of something unexpected', done => {
     findExec.returns(new Promise((resolve, reject) => reject(expectedError)));
     crudInstance.get({ key: 'some-key' }).catch(reason => {
       expect(reason).to.equal(expectedError);
@@ -130,7 +130,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should update an existing model', (done) => {
+  it('should update an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
     findExec.returns(new Promise(resolve => resolve(existing)));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
@@ -143,7 +143,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should replace arrays when updating an existing model', (done) => {
+  it('should replace arrays when updating an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date(), somArray: [{ hey: 'there' },{ hi: 'there' }], save: sinon.stub().yields() };
     findExec.returns(new Promise(resolve => resolve(existing)));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true, somArray: [{ hey: 'mate' }] };
@@ -154,7 +154,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should allow the document to be transformed when updating an existing model', (done) => {
+  it('should allow the document to be transformed when updating an existing model', done => {
     options.transformForSave = doc => Object.assign(doc, { dateTo: null });
     crudInstance = crudModel(options);
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
@@ -166,7 +166,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should allow the transformation function to return a Promise when updating an existing model', (done) => {
+  it('should allow the transformation function to return a Promise when updating an existing model', done => {
     options.transformForSave = doc => new Promise(resolve => process.nextTick(() => resolve(Object.assign(doc, { dateTo: null }))));
     crudInstance = crudModel(options);
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
@@ -178,7 +178,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should allow the getKeyConditions function to return a Promise when updating an existing model', (done) => {
+  it('should allow the getKeyConditions function to return a Promise when updating an existing model', done => {
     options.getKeyConditions = doc => new Promise(resolve => process.nextTick(() => resolve({ key: doc.key })));
     crudInstance = crudModel(options);
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
@@ -190,7 +190,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should fail to update when the getKeyConditions function Promise rejects', (done) => {
+  it('should fail to update when the getKeyConditions function Promise rejects', done => {
     options.getKeyConditions = doc => Promise.reject(expectedError);
     crudInstance = crudModel(options);
     let doc = { key: 'key', dateTo: new Date(), isAdmin: true };
@@ -200,7 +200,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should reject with an error when it fails to update a model because of something unexpected when retrieving', (done) => {
+  it('should reject with an error when it fails to update a model because of something unexpected when retrieving', done => {
     findExec.returns(new Promise((resolve, reject) => reject(expectedError)));
     let doc = { key: 'my-key', dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).catch(reason => {
@@ -209,7 +209,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should reject with an error when it fails to update a model because of something unexpected when saving', (done) => {
+  it('should reject with an error when it fails to update a model because of something unexpected when saving', done => {
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields(expectedError) };
     findExec.returns(new Promise(resolve => resolve(existing)));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
@@ -219,13 +219,13 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should remove an existing model', (done) => {
+  it('should remove an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date(), remove: sinon.stub().yields() };
     findExec.returns(new Promise(resolve => resolve(existing)));
     crudInstance.remove({ key: existing.key }).then(done);
   });
 
-  it('should reject with an error when it fails to remove a model because of something unexpected when retrieving', (done) => {
+  it('should reject with an error when it fails to remove a model because of something unexpected when retrieving', done => {
     findExec.returns(new Promise((resolve, reject) => reject(expectedError)));
     crudInstance.remove({ key: 'some-key' }).catch(reason => {
       expect(reason).to.equal(expectedError);
@@ -233,7 +233,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should reject with an error when it fails to remove a model because of something unexpected when deleting', (done) => {
+  it('should reject with an error when it fails to remove a model because of something unexpected when deleting', done => {
     let existing = { key: 'some key', dateFrom: new Date(), remove: sinon.stub().yields(expectedError) };
     findExec.returns(new Promise(resolve => resolve(existing)));
     crudInstance.remove({ key: 'key' }).catch(reason => {
@@ -242,7 +242,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should find a model using the provided conditions', (done) => {
+  it('should find a model using the provided conditions', done => {
     let conditions = { dateFrom: { $gte: new Date() }};
     crudInstance.find(conditions).exec().then(results => {
       expect(options.model.find.calledWith(conditions)).to.equal(true);
@@ -250,7 +250,7 @@ describe('crud model', ()=> {
     });
   });
 
-  it('should count models using the provided conditions', (done) => {
+  it('should count models using the provided conditions', done => {
     let conditions = { dateFrom: { $gte: new Date() }};
     crudInstance.count(conditions).exec().then(results => {
       expect(options.model.count.calledWith(conditions)).to.equal(true);

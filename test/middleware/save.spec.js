@@ -34,7 +34,7 @@ describe('crud-middleware save operation', ()=> {
     crudMiddlewareInstance = crudMiddleware(options);
   });
 
-  it('should create a model', (done) => {
+  it('should create a model', done => {
     let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.create.returns(new Promise(resolve => resolve(doc)));
     req.body = doc;
@@ -45,7 +45,7 @@ describe('crud-middleware save operation', ()=> {
     });
   });
 
-  it('should run request validation using the create rules', (done) => {
+  it('should run request validation using the create rules', done => {
     crud.create.returns(new Promise(resolve => resolve({})));
     crudMiddlewareInstance.create(req, res).then(created => {
       expect(options.validateRequest.calledWith(req, options.create.rules)).to.equal(true);
@@ -53,7 +53,18 @@ describe('crud-middleware save operation', ()=> {
     });
   });
 
-  it('should return any unexpected error encountered when creating a model', (done) => {
+  it('should get the data to be created from the getReqBody function', done => {
+    const transformedRequestBody = { my: 'data' };
+    options.create.getReqBody = () => transformedRequestBody;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crud.create.returns(new Promise(resolve => resolve({})));
+    crudMiddlewareInstance.create(req, res).then(created => {
+      expect(crud.create.firstCall.args[0]).to.deep.equal(transformedRequestBody);
+      done();
+    });
+  });
+
+  it('should return any unexpected error encountered when creating a model', done => {
     let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.create.returns(new Promise((resolve, reject) => reject(expectedError)));
     req.body = doc;
@@ -63,7 +74,7 @@ describe('crud-middleware save operation', ()=> {
     });
   });
 
-  it('should update a model', (done) => {
+  it('should update a model', done => {
     let doc = { key: '234', dateTo: '2016-10-06T07:25:10.759Z' };
     crud.update.returns(new Promise(resolve => resolve(doc)));
     req.body = doc;
@@ -74,7 +85,7 @@ describe('crud-middleware save operation', ()=> {
     });
   });
 
-  it('should run request validation using the update rules', (done) => {
+  it('should run request validation using the update rules', done => {
     crud.update.returns(new Promise(resolve => resolve({})));
     crudMiddlewareInstance.update(req, res).then(updated => {
       expect(options.validateRequest.calledWith(req, options.update.rules)).to.equal(true);
@@ -82,7 +93,18 @@ describe('crud-middleware save operation', ()=> {
     });
   });
 
-  it('should return any unexpected error encountered when updating a model', (done) => {
+  it('should get the data to be updated from the getReqBody function', done => {
+    const transformedRequestBody = { my: 'data' };
+    options.update.getReqBody = () => transformedRequestBody;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crud.update.returns(new Promise(resolve => resolve({})));
+    crudMiddlewareInstance.update(req, res).then(updated => {
+      expect(crud.update.firstCall.args[0]).to.deep.equal(transformedRequestBody);
+      done();
+    });
+  });
+
+  it('should return any unexpected error encountered when updating a model', done => {
     let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.update.returns(new Promise((resolve, reject) => reject(expectedError)));
     req.body = doc;

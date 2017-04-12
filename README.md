@@ -11,30 +11,23 @@ Comprises a model to expose the various functions and express middleware to rout
 
 ### Model
 
-    const _ require('lodash');
-    const MyMongooseModel = require('./my-model');
+    const model = require('./my-mongoose-model');
 
-    const crudModel = require('cruddy-express-api').model({
-      model: MyMongooseModel
-    });
-    
-    module.exports = _.merge({
-      other: other
-    }, crudModel);
+    module.exports = require('cruddy-express-api').model({ model });
 
-Provides: crudModel.create, crudModel.update, crudModel.get, crudModel.remove, crudModel.find and crudModel.options
+Provides: crudModel.create, crudModel.update, crudModel.get, crudModel.remove, crudModel.find, crudModel.count and crudModel.options
 
 ### middleware
 
     const crudModel = require('./my-model'); //Refers to above example
 
     const crudMiddleware = require('cruddy-express-api').middleware({
-      getCrudModel: () => crudModel
+      getCrudModel: () => crudModel,
     });
 
     router.use(crudMiddleware.routes);
 
-Provides: crudMiddleware.routes, crudMiddleware.create, crudMiddleware.update, crudMiddleware.get, crudMiddleware.remove, crudMiddleware.find and crudMiddleware.options
+Provides: crudMiddleware.routes, crudMiddleware.create, crudMiddleware.update, crudMiddleware.get, crudMiddleware.remove, crudMiddleware.find, crudMiddleware.count and crudMiddleware.options
 
 crudMiddleware.routes works with requests like this:
 * POST / to create
@@ -66,7 +59,7 @@ crudMiddleware.routes works with requests like this:
       }
     });
 
-    let swaggerDocs = _.merge({}, entityDocs, theRestOfMyDocs);
+    const swaggerDocs = _.merge({}, entityDocs, theRestOfMyDocs);
 
 ## Options
 
@@ -84,45 +77,50 @@ crudMiddleware.routes works with requests like this:
 
 ### Middleware
 
-    {
+    const respond = require('promise-to-respond');
+
+    module.exports = {
       getCrudModel: () => { throw new Error('Must provide an implementation for getCrudModel'); },
-      respond: require('promise-to-respond')(),
-      validateRequest: (req, validationRules) => new Promise(resolve => resolve()),
+      getReqParams: req => req.params,
+      respond: respond(),
+      validateRequest: (req, validationRules) => Promise.resolve(),
       create: {
-        rules: {}
+        rules: {},
+        getReqBody: req => req.body,
       },
       update: {
-        rules: {}
+        rules: {},
+        getReqBody: req => req.body,
       },
       find: {
         rules: {},
-        getControls: () => {
-          return {
-            skip: 0,
-            limit: 20
-          };
-        },
+        getReqBody: req => req.body,
+        getControls: () => ({ skip: 0, limit: 20 }),
         getConditions: () => null
       },
       reqParamId: '_id'
-    }
+    };
 
 * getCrudModel must be specified. It is a function that returns something that supports the crudModel method signatures.
+* getReqParams can be overridden if you need to pass something other than req.params to the get and remove operations.
 * respond can be overridden. For example to transform the payload before responding. It is a function with parameters (res, promise).
 * validateRequest is a way to hook into validation middleware like express-validator. It is called for create, update and find requests.
+* create.getReqBody can be overridden if you need to pass something other than req.body to the create operation.
 * create.rules are the validation rules that will be passed to validateRequest on create.
+* update.getReqBody can be overridden if you need to pass something other than req.body to the update operation.
 * update.rules are the validation rules that will be passed to validateRequest on update.
+* find.getReqBody can be overridden if you need to pass something other than req.body to the find and count operations.
 * find.rules are the validation rules that will be passed to validateRequest on find and count.
 * find.getControls is a function that is passed the req.body and returns { skip, limit } to be appended to the query returned from crudModel.find.
 * find.getConditions is a function that is passed the req.body and returns the relevant mongoose conditions for the find operation.
 * reqParamId is the name of the request parameter used on the GET and DELETE requests. 
-  The req.params object becomes the conditions passed through to the corresponding crudModel methods. 
 
 ### Swagger docs
 
     {
       entity: {
         name: 'please-specify-the-entity-name',
+        path: null,
         schema: {
           type: 'object',
           properties: {} 
@@ -140,6 +138,7 @@ crudMiddleware.routes works with requests like this:
     }
 
 * entity.name must be specified. It is the name of the entity acted upon by the CRUD operations.
+* entity.path can be specified if you want the path to be something other than the entity name.
 * entity.schema can be overridden to define your entity schema.
 * pathPrefix.read can be set to the base path for retrieval operations if you want to separate them from the others.
 * pathPrefix.write can be set to the base path for update operations if you want to separate them from the others.

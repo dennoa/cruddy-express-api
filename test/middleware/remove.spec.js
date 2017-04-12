@@ -7,7 +7,7 @@ const crudMiddleware = require('../../lib').middleware;
 describe('crud-middleware remove operation', ()=> {
 
   let expectedError = 'Expected for testing';
-  let req, res, crud, crudMiddlewareInstance;
+  let req, res, crud, options, crudMiddlewareInstance;
 
   beforeEach(()=> {
     req = { params: {} };
@@ -15,18 +15,30 @@ describe('crud-middleware remove operation', ()=> {
     crud = {
       remove: sinon.stub().returns(new Promise((resolve, reject) => reject()))
     };
-    crudMiddlewareInstance = crudMiddleware({
+    options = {
       getCrudModel: () => crud,
       respond: (res, promise) => promise
-    });
+    };
+    crudMiddlewareInstance = crudMiddleware(options);
   });
 
-  it('should remove a model by key', (done) => {
+  it('should remove a model by key', done => {
     let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.remove.returns(new Promise(resolve => resolve()));
     req.params.key = doc.key;
     crudMiddlewareInstance.remove(req, res).then(() => {
       expect(crud.remove.firstCall.args[0]).to.deep.equal(req.params);
+      done();
+    });
+  });
+
+  it('should get the request parameters from the getReqParams function', done => {
+    const transformedParams = { key: '123', other: '45' };
+    options.getReqParams = () => transformedParams;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crud.remove.returns(new Promise(resolve => resolve()));
+    crudMiddlewareInstance.remove(req, res).then(() => {
+      expect(crud.remove.firstCall.args[0]).to.deep.equal(transformedParams);
       done();
     });
   });
