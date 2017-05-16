@@ -6,7 +6,7 @@ const crudMiddleware = require('../../lib').middleware;
 
 describe('crud-middleware save operation', ()=> {
 
-  let expectedError = 'Expected for testing';
+  const expectedError = 'Expected for testing';
   let req, res, crud, options, crudMiddlewareInstance;
 
   beforeEach(()=> {
@@ -35,7 +35,7 @@ describe('crud-middleware save operation', ()=> {
   });
 
   it('should create a model', done => {
-    let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
+    const doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.create.returns(new Promise(resolve => resolve(doc)));
     req.body = doc;
     crudMiddlewareInstance.create(req, res).then(created => {
@@ -65,7 +65,7 @@ describe('crud-middleware save operation', ()=> {
   });
 
   it('should return any unexpected error encountered when creating a model', done => {
-    let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
+    const doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.create.returns(new Promise((resolve, reject) => reject(expectedError)));
     req.body = doc;
     crudMiddlewareInstance.create(req, res).catch(err => {
@@ -75,7 +75,7 @@ describe('crud-middleware save operation', ()=> {
   });
 
   it('should update a model', done => {
-    let doc = { key: '234', dateTo: '2016-10-06T07:25:10.759Z' };
+    const doc = { key: '234', dateTo: '2016-10-06T07:25:10.759Z' };
     crud.update.returns(new Promise(resolve => resolve(doc)));
     req.body = doc;
     crudMiddlewareInstance.update(req, res).then(updated => {
@@ -105,7 +105,7 @@ describe('crud-middleware save operation', ()=> {
   });
 
   it('should return any unexpected error encountered when updating a model', done => {
-    let doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
+    const doc = { key: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.update.returns(new Promise((resolve, reject) => reject(expectedError)));
     req.body = doc;
     crudMiddlewareInstance.update(req, res).catch(err => {

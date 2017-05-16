@@ -6,7 +6,7 @@ const crudMiddleware = require('../../lib').middleware;
 
 describe('crud-middleware count operation', ()=> {
 
-  let expectedError = 'Expected for testing';
+  const expectedError = 'Expected for testing';
   let req, res, options, crud, crudMiddlewareInstance;
   let exec;
 

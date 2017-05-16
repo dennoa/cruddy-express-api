@@ -6,24 +6,25 @@ const crudMiddleware = require('../../lib').middleware;
 
 describe('crud-middleware get operation', ()=> {
 
-  let expectedError = 'Expected for testing';
+  const expectedError = 'Expected for testing';
   let req, res, crud, options, crudMiddlewareInstance;
 
   beforeEach(()=> {
     req = { params: {} };
     res = { status: sinon.stub().returns({ json: sinon.stub() })};
     crud = {
-      get: sinon.stub().returns(new Promise((resolve, reject) => reject()))
+      get: sinon.stub().returns(Promise.reject())
     };
     options = {
       getCrudModel: () => crud,
+      validateRequest: sinon.stub().returns(Promise.resolve()),
       respond: (res, promise) => promise
     };
     crudMiddlewareInstance = crudMiddleware(options);
   });
 
   it('should get a model by _id', done => {
-    let doc = { _id: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
+    const doc = { _id: '234', dateFrom: '2016-09-06T07:25:10.759Z' };
     crud.get.returns(new Promise(resolve => resolve(doc)));
     req.params._id = doc._id;
     crudMiddlewareInstance.get(req, res).then(found => {
@@ -40,6 +41,15 @@ describe('crud-middleware get operation', ()=> {
     crud.get.returns(new Promise(resolve => resolve()));
     crudMiddlewareInstance.get(req, res).then(() => {
       expect(crud.get.firstCall.args[0]).to.deep.equal(transformedParams);
+      done();
+    });
+  });
+
+  it('should run request validation using the get rules', done => {
+    crud.get.returns(new Promise(resolve => resolve({})));
+    req.params._id = '123';
+    crudMiddlewareInstance.get(req, res).then(() => {
+      expect(options.validateRequest.calledWith(req, crudMiddlewareInstance.options.get.rules)).to.equal(true);
       done();
     });
   });

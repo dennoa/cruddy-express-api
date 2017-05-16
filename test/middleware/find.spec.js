@@ -6,7 +6,7 @@ const crudMiddleware = require('../../lib').middleware;
 
 describe('crud-middleware find operation', ()=> {
 
-  let expectedError = 'Expected for testing';
+  const expectedError = 'Expected for testing';
   let req, res, options, crud, crudMiddlewareInstance;
   let skip, limit, exec;
 
@@ -29,7 +29,7 @@ describe('crud-middleware find operation', ()=> {
   });
 
   it('should find models', done => {
-    let docs = [{ key: '234', dateFrom: '2016-09-06T07:25:10.759Z' }, { key: 'abc', dateFrom: '2016-10-06T07:25:10.759Z' }];
+    const docs = [{ key: '234', dateFrom: '2016-09-06T07:25:10.759Z' }, { key: 'abc', dateFrom: '2016-10-06T07:25:10.759Z' }];
     exec.returns(Promise.resolve(docs));
     crudMiddlewareInstance.find(req, res).then(found => {
       expect(found).to.deep.equal(docs);
