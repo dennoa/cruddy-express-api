@@ -119,8 +119,8 @@ crudMiddleware.routes works with requests like this:
 * find.rules are the validation rules that will be passed to validateRequest on find and count.
 * find.getControls is a function that is passed the req.body and returns { skip, limit } to be appended to the query returned from crudModel.find.
 * find.getConditions is a function that is passed the req.body and returns the relevant mongoose conditions for the find operation.
-* get.rules are the validation rules that will be passed to validateRequest on get.
-* remove.rules are the validation rules that will be passed to validateRequest on remove.
+* get.rules are the validation rules that will be passed to validateRequest on get. The default rule verifies the reqParamId value is a mongo id.
+* remove.rules are the validation rules that will be passed to validateRequest on remove. The default rule verifies the reqParamId value is a mongo id.
 * reqParamId is the name of the request parameter used on the GET and DELETE requests. 
 
 ### Swagger docs

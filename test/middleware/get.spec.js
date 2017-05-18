@@ -54,6 +54,19 @@ describe('crud-middleware get operation', ()=> {
     });
   });
 
+  it('should update the validation rules to cater for a different reqParamId', () => {
+    options.reqParamId = 'otherId';
+    crudMiddlewareInstance = crudMiddleware(options);
+    expect(crudMiddlewareInstance.options.get.rules).to.deep.equal({ otherId: { in: 'params', isMongoId: { errorMessage: 'invalid' } } });
+  });
+
+  it('should allow the validation rules to be overridden', () => {
+    const custom = { thing: { myCustomValidator: { errorMessage: 'invalid' } } };
+    options.get = { rules: Object.assign({}, custom) };
+    crudMiddlewareInstance = crudMiddleware(options);
+    expect(crudMiddlewareInstance.options.get.rules).to.deep.equal(custom);
+  });
+
   it('should respond with any errors encountered when getting a model by _id', (done)=> {
     crud.get.returns(new Promise((resolve, reject)=> { reject(expectedError); }));
     req.params._id = 'some-key';
