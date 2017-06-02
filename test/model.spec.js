@@ -7,8 +7,8 @@ const crudModel = require('../lib').model;
 
 describe('crud model', ()=> {
 
+  const expectedError = 'Expected for testing';
   let findExec, countExec, options, crudInstance;
-  let expectedError = 'Expected for testing';
 
   beforeEach(()=> {
     findExec = sinon.stub().returns(Promise.resolve(null));
@@ -108,7 +108,7 @@ describe('crud model', ()=> {
 
   it('should get an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date() };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     crudInstance.get({ key: existing.key }).then(found => {
       expect(found).to.deep.equal(existing);
       done();
@@ -132,7 +132,7 @@ describe('crud model', ()=> {
 
   it('should update an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).then(updated => {
       expect(updated.key).to.equal(existing.key);
@@ -145,7 +145,7 @@ describe('crud model', ()=> {
 
   it('should replace arrays when updating an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date(), somArray: [{ hey: 'there' },{ hi: 'there' }], save: sinon.stub().yields() };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true, somArray: [{ hey: 'mate' }] };
     crudInstance.update(doc).then(updated => {
       expect(updated.somArray.length).to.equal(1);
@@ -158,7 +158,7 @@ describe('crud model', ()=> {
     options.transformForSave = doc => Object.assign(doc, { dateTo: null });
     crudInstance = crudModel(options);
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).then(updated => {
       expect(updated.dateTo).to.equal(null);
@@ -170,10 +170,22 @@ describe('crud model', ()=> {
     options.transformForSave = doc => new Promise(resolve => process.nextTick(() => resolve(Object.assign(doc, { dateTo: null }))));
     crudInstance = crudModel(options);
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).then(updated => {
       expect(updated.dateTo).to.equal(null);
+      done();
+    });
+  });
+
+  it('should provide a default implementation for getKeyConditions', done => {
+    delete options.getKeyConditions;
+    crudInstance = crudModel(options);
+    const existing = { _id: '1234', dateFrom: new Date(), save: sinon.stub().yields() };
+    findExec.returns(Promise.resolve(existing));
+    const doc = { _id: existing._id, dateTo: new Date(), isAdmin: true };
+    crudInstance.update(doc).then(updated => {
+      expect(options.model.findOne.firstCall.args[0]).to.deep.equal({ _id: doc._id });
       done();
     });
   });
@@ -182,7 +194,7 @@ describe('crud model', ()=> {
     options.getKeyConditions = doc => new Promise(resolve => process.nextTick(() => resolve({ key: doc.key })));
     crudInstance = crudModel(options);
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields() };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).then(updated => {
       expect(options.model.findOne.firstCall.args[0]).to.deep.equal({ key: doc.key });
@@ -211,7 +223,7 @@ describe('crud model', ()=> {
 
   it('should reject with an error when it fails to update a model because of something unexpected when saving', done => {
     let existing = { key: 'some key', dateFrom: new Date(), save: sinon.stub().yields(expectedError) };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     let doc = { key: existing.key, dateTo: new Date(), isAdmin: true };
     crudInstance.update(doc).catch(reason => {
       expect(reason).to.equal(expectedError);
@@ -221,7 +233,7 @@ describe('crud model', ()=> {
 
   it('should remove an existing model', done => {
     let existing = { key: 'some key', dateFrom: new Date(), remove: sinon.stub().yields() };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     crudInstance.remove({ key: existing.key }).then(done);
   });
 
@@ -235,7 +247,7 @@ describe('crud model', ()=> {
 
   it('should reject with an error when it fails to remove a model because of something unexpected when deleting', done => {
     let existing = { key: 'some key', dateFrom: new Date(), remove: sinon.stub().yields(expectedError) };
-    findExec.returns(new Promise(resolve => resolve(existing)));
+    findExec.returns(Promise.resolve(existing));
     crudInstance.remove({ key: 'key' }).catch(reason => {
       expect(reason).to.equal(expectedError);
       done();

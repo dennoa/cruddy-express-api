@@ -50,7 +50,6 @@ describe('crud-middleware find operation', ()=> {
     options.find.getConditions = sinon.stub();
     crudMiddlewareInstance = crudMiddleware(options);
     crudMiddlewareInstance.find(req, res).then(found => {
-      console.log(options.find.getConditions.firstCall.args[0]);
       expect(options.find.getConditions.firstCall.args[0]).to.deep.equal(transformedRequestBody);
       done();
     });
