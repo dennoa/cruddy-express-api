@@ -68,6 +68,27 @@ describe('crud-middleware save operation', ()=> {
     });
   });
 
+  it('should allow the create rules to be a function and call it with (req, res) if so', done => {
+    const derivedRules = { key: { isMongoId: { errorMessage: 'invalid' } } };
+    options.create.rules = sinon.stub().returns(derivedRules);
+    crud.create.returns(Promise.resolve({}));
+    crudMiddleware(options).create(req, res).then(created => {
+      expect(options.validateRequest.calledWith(req, derivedRules)).to.equal(true);
+      expect(options.create.rules.calledWith(req, res)).to.equal(true);
+      done();
+    });
+  });
+
+  it('should allow the create rules function to return a promise', done => {
+    const derivedRules = { key: { isMongoId: { errorMessage: 'invalid' } } };
+    options.create.rules = () => new Promise(resolve => process.nextTick(() => resolve(derivedRules)));
+    crud.create.returns(Promise.resolve({}));
+    crudMiddleware(options).create(req, res).then(created => {
+      expect(options.validateRequest.calledWith(req, derivedRules)).to.equal(true);
+      done();
+    });
+  });
+
   it('should get the data to be created from the getReqBody function', done => {
     const transformedRequestBody = { my: 'data' };
     options.create.getReqBody = () => transformedRequestBody;
@@ -104,6 +125,47 @@ describe('crud-middleware save operation', ()=> {
     crud.update.returns(Promise.resolve({}));
     crudMiddlewareInstance.update(req, res).then(updated => {
       expect(options.validateRequest.calledWith(req, options.update.rules)).to.equal(true);
+      done();
+    });
+  });
+
+  ['create', 'update'].forEach(method => {
+    it(`should fail if request validation fails on ${method}`, done => {
+      const error = new crudMiddlewareInstance.ValidationError([{ param: 'key', msg: 'invalid' }]);
+      options.validateRequest = () => { throw error; };
+      crudMiddleware(options)[method](req, res).catch(result => {
+        expect(result).to.equal(error);
+        done();
+      });
+    });
+
+    it(`should fail if the rules promise rejects on ${method}`, done => {
+      const error = new crudMiddlewareInstance.ValidationError([{ param: 'key', msg: 'invalid' }]);
+      options[method].rules = () => Promise.reject(error);
+      crudMiddleware(options)[method](req, res).catch(result => {
+        expect(result).to.equal(error);
+        done();
+      });
+    });
+  });
+
+  it('should allow the update rules to be a function and call it with (req, res) if so', done => {
+    const derivedRules = { key: { isMongoId: { errorMessage: 'invalid' } } };
+    options.update.rules = sinon.stub().returns(derivedRules);
+    crud.update.returns(Promise.resolve({}));
+    crudMiddleware(options).update(req, res).then(() => {
+      expect(options.validateRequest.calledWith(req, derivedRules)).to.equal(true);
+      expect(options.update.rules.calledWith(req, res)).to.equal(true);
+      done();
+    });
+  });
+
+  it('should allow the update rules function to return a promise', done => {
+    const derivedRules = { key: { isMongoId: { errorMessage: 'invalid' } } };
+    options.update.rules = () => new Promise(resolve => process.nextTick(() => resolve(derivedRules)));
+    crud.update.returns(Promise.resolve({}));
+    crudMiddleware(options).update(req, res).then(() => {
+      expect(options.validateRequest.calledWith(req, derivedRules)).to.equal(true);
       done();
     });
   });

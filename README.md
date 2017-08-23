@@ -112,16 +112,17 @@ crudMiddleware.routes works with requests like this:
 * respond can be overridden. For example to transform the payload before responding. It is a function with parameters (res, promise).
 * validateRequest is a way to hook into validation middleware like express-validator. It is called for create, update and find requests.
 * create.getReqBody can be overridden if you need to pass something other than req.body to the create operation.
-* create.rules are the validation rules that will be passed to validateRequest on create.
+* create.rules are the validation rules that will be passed to validateRequest on create. See below for notes on rules.
 * update.getReqBody can be overridden if you need to pass something other than req.body to the update operation.
-* update.rules are the validation rules that will be passed to validateRequest on update.
+* update.rules are the validation rules that will be passed to validateRequest on update. See below for notes on rules.
 * find.getReqBody can be overridden if you need to pass something other than req.body to the find and count operations.
-* find.rules are the validation rules that will be passed to validateRequest on find and count.
+* find.rules are the validation rules that will be passed to validateRequest on find and count. See below for notes on rules.
 * find.getControls is a function that is passed the req.body and returns { skip, limit } to be appended to the query returned from crudModel.find.
 * find.getConditions is a function that is passed the req.body and returns the relevant mongoose conditions for the find operation.
-* get.rules are the validation rules that will be passed to validateRequest on get. The default rule verifies the reqParamId value is a mongo id.
-* remove.rules are the validation rules that will be passed to validateRequest on remove. The default rule verifies the reqParamId value is a mongo id.
-* reqParamId is the name of the request parameter used on the GET and DELETE requests. 
+* get.rules are the validation rules that will be passed to validateRequest on get. The default rule verifies the reqParamId value is a mongo id. See below for notes on rules.
+* remove.rules are the validation rules that will be passed to validateRequest on remove. The default rule verifies the reqParamId value is a mongo id. See below for notes on rules.
+* reqParamId is the name of the request parameter used on the GET and DELETE requests.
+* rules are passed to validateRequest without change except where rules is a function. In this case, it is called with the request and response - e.g. rules(req, res) and the result passed to validateRequest. If the function returns a promise, the resolved value is passed to validateRequest. A rejected promise is handled by respond as any other rejected promise would be.
 
 ### Swagger docs
 

@@ -53,6 +53,17 @@ describe('crud-middleware remove operation', ()=> {
     });
   });
 
+  it('should allow the remove rules to be a function and call it with (req, res) if so', done => {
+    const derivedRules = { key: { isMongoId: { errorMessage: 'invalid' } } };
+    options.remove = { rules: sinon.stub().returns(derivedRules) };
+    crud.remove.returns(new Promise(resolve => resolve()));
+    crudMiddleware(options).remove(req, res).then(() => {
+      expect(options.validateRequest.calledWith(req, derivedRules)).to.equal(true);
+      expect(options.remove.rules.calledWith(req, res)).to.equal(true);
+      done();
+    });
+  });
+
   it('should respond with any errors encountered when removing a model by key', (done)=> {
     crud.remove.returns(new Promise((resolve, reject)=> { reject(expectedError); }));
     crudMiddlewareInstance.remove(req, res).catch(err => {

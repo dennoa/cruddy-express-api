@@ -1,6 +1,6 @@
 {
   "name": "cruddy-express-api",
-  "version": "1.1.6",
+  "version": "2.0.0",
   "description": "CRUD stuff to help with a REST api",
   "main": "index.js",
   "engines": {
@@ -25,9 +25,9 @@
   },
   "homepage": "https://github.com/dennoa/cruddy-express-api#readme",
   "dependencies": {
-    "express": "^4.15.3",
+    "express": "^4.15.4",
     "lodash": "^4.17.4",
-    "promise-to-respond": "^1.0.6"
+    "promise-to-respond": "^2.0.0"
   },
   "devDependencies": {
     "chai": "^4.0.0",
