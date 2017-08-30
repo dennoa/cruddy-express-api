@@ -1,2 +1,5 @@
 coverage
 test
+.eslintignore
+.eslintrc.json
+.gitignore
