@@ -17,7 +17,7 @@ Comprises a model to expose the various functions and express middleware to rout
 
 Provides: crudModel.create, crudModel.update, crudModel.get, crudModel.remove, crudModel.find, crudModel.count and crudModel.options
 
-### middleware
+### Middleware
 
     const crudModel = require('./my-model'); //Refers to above example
 
@@ -37,9 +37,9 @@ crudMiddleware.routes works with requests like this:
 * GET /:key to get by key
 * DELETE /:key to remove
 
-### Swagger docs
+### Swagger
 
-    const entityDocs = require('cruddy-express-api').swagger({
+    const crudSwagger = require('cruddy-express-api').swagger({
       entity: {
         name: 'my-entity',
         schema: {
@@ -59,7 +59,73 @@ crudMiddleware.routes works with requests like this:
       }
     });
 
-    const swaggerDocs = _.merge({}, entityDocs, theRestOfMyDocs);
+    const swaggerDocs = _.merge({}, crudSwagger.docs, theRestOfMyDocs);
+
+Provides: crudSwagger.options, crudSwagger.docs, crudSwagger.getOperation, crudSwagger.getBodyParameters, crudSwagger.getIdParameters
+
+#### getOperation
+
+You can use crudSwagger.getOperation to leverage some default behaviour and reduce the amount of configuration required for other swagger docs. For example:
+
+    paths: {
+      '/my-entity/clone': {
+        post: crudSwagger.getOperation({
+          summary: 'Clone my thing',
+          parameters: [{ name: 'Options',  in: 'body',  schema: { $ref: '#/definitions/clone-my-thing' } }]
+        })
+      } 
+    }
+
+The getOperation method takes an object that overrides the default behaviour:
+
+    {
+      tags: array defaulting to the same tags array on the create operation,
+      summary: string defaulting to the entity name,
+      description: string defaulting to the summary,
+      parameters: array with no default,
+      responses: object defaulting to the output from crudSwagger.options.getResponses({ entityName })
+    }
+
+#### getBodyParameters
+
+You can likewise use crudSwagger.getBodyParameters:
+
+    paths: {
+      '/my-entity/clone': {
+        post: crudSwagger.getOperation({
+          summary: 'Clone my thing',
+          parameters: getBodyParameters({ name: 'Options', entityName: 'clone-my-thing' })
+        })
+      } 
+    }
+
+The getBodyParameters method takes an object that overrides the default behaviour:
+
+    {
+      entityName: required string,
+      name: string defaulting to the specified entityName,
+      description: string defaulting to the specified name,
+    }
+
+#### getIdParameters
+
+You can likewise use crudSwagger.getIdParameters:
+
+    paths: {
+      '/my-entity/{_id}/red': {
+        get: crudSwagger.getOperation({
+          summary: 'Get my thing in red',
+          parameters: getIdParameters()
+        })
+      } 
+    }
+
+The getIdParameters method takes an object that overrides the default behaviour:
+
+    {
+      name: string defaulting to the configured reqParamId,
+      description: string defaulting to the specified name or Identifies entityName,
+    }
 
 ## Options
 
@@ -141,9 +207,10 @@ crudMiddleware.routes works with requests like this:
         write: { name: null, description: null }
       },
       reqParamId: '_id',
-      getErrorResponses: getErrorResponses,
-      errorDefinitions: errorDefinitions,
-      searchProperties: searchControlProperties
+      getErrorResponses,
+      getResponses,
+      errorDefinitions,
+      searchProperties,
     }
 
 * entity.name must be specified. It is the name of the entity acted upon by the CRUD operations.
@@ -154,8 +221,9 @@ crudMiddleware.routes works with requests like this:
 * tag.read can specify an alternate tag for retrieval operations.
 * tag.write can specify an alternate tag for update operations.
 * reqParamId is the id that will be used for the GET and DELETE operations.
-* getErrorResponses can be overridden. This is a function that can be passed { exclude: ? } to leave out any of the included errors: 400, 401, 404 and 500.
+* getErrorResponses can be overridden. This function can be passed { exclude: ? } to leave out any of the included errors: 400, 401, 404 and 500.
   The exclude option can be a string or an array.
+* getResponses can be overridden. This function can be passed { exclude: ?, entityName: ?, arrayOf: ? } where: (i) exclude leaves out any responses as per above behaviour, (ii) entityName if specified indicates a 200 response of a definition called entityName, if not specified indicates 204, (iii) arrayOf is only relevant if entityName is specified and indicates the response is an array of a definition called entityName.
 * errorDefinitions can be overridden. Defaults include validation-errors (400) and system-error (500).
 * searchProperties can be overridden. Default provides property docs for the skip and limit search controls.
 

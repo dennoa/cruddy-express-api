@@ -18,9 +18,7 @@ describe('swagger docs', ()=> {
 
   it('should generate tags', ()=> {
     const docs = crudSwagger(options).docs;
-    expect(docs.tags.length).to.equal(1);
-    expect(docs.tags[0].name).to.equal('my-entity');
-    expect(docs.tags[0].description).to.equal('my-entity');
+    expect(docs.tags).to.deep.equal([{ name: 'my-entity', description: 'my-entity' }]);
   });
 
   ['read', 'write'].forEach(action => {
@@ -119,11 +117,55 @@ describe('swagger docs', ()=> {
       }
     };
     const docs = crudSwagger(options).docs;
-    expect(docs.definitions['my-entity'].properties.myProperty.description).to.equal('My property');
+    expect(docs.definitions['my-entity']).to.deep.equal(options.entity.schema);
   });
 
   it('should expose the configured options', ()=> {
     expect(!!crudSwagger(options).options).to.equal(true);
+  });
+
+  describe('getOperation', () => {
+
+    let cs, defaultValues;
+    beforeEach(() => {
+      cs = crudSwagger(options);
+      defaultValues = {
+        tags: ['my-entity'],
+        summary: 'my-entity',
+        description: 'my-entity',
+        parameters: undefined,
+        responses: cs.options.getResponses({ entityName: 'my-entity' })
+      };
+    });
+
+    it('should allow getOperation to be called with no arguments', () => {
+      expect(cs.getOperation()).to.deep.equal(defaultValues);
+    });
+
+    it('should allow tags to be overridden', () => {
+      const tags = ['my-entity', 'my-other-tag'];
+      expect(cs.getOperation({ tags })).to.deep.equal(Object.assign(defaultValues, { tags }));
+    });
+
+    it('should allow summary to be overridden', () => {
+      const summary = 'something else';
+      expect(cs.getOperation({ summary })).to.deep.equal(Object.assign(defaultValues, { summary, description: summary }));
+    });
+
+    it('should allow description to be overridden', () => {
+      const description = 'something else';
+      expect(cs.getOperation({ description })).to.deep.equal(Object.assign(defaultValues, { description }));
+    });
+
+    it('should allow parameters to be overridden', () => {
+      const parameters = [{ name: 'Options',  in: 'body',  schema: { $ref: '#/definitions/overriding-my-thing' } }];
+      expect(cs.getOperation({ parameters })).to.deep.equal(Object.assign(defaultValues, { parameters }));
+    });
+
+    it('should allow responses to be overridden', () => {
+      const responses = cs.options.getResponses({ exclude: '404' });
+      expect(cs.getOperation({ responses })).to.deep.equal(Object.assign(defaultValues, { responses }));
+    });
   });
 
 });
