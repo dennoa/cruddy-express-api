@@ -161,7 +161,7 @@ The getIdParameters method takes an object that overrides the default behaviour:
       find: {
         rules: {},
         getReqBody: req => req.body,
-        getControls: () => ({ skip: 0, limit: 20 }),
+        getControls: body => _.merge({ skip: 0, limit: 20 }, _.pick(body, ['skip', 'limit'])),
         getConditions: () => null
       },
       get: {

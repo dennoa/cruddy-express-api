@@ -14,10 +14,10 @@ describe('crud-middleware find operation', ()=> {
     req = { body: {} };
     res = { status: sinon.stub().returns({ json: sinon.stub() })};
     exec = sinon.stub().returns(Promise.resolve([]));
-    limit = sinon.stub().returns({ exec: exec });
-    skip = sinon.stub().returns({ limit: limit });
+    limit = sinon.stub().returns({ exec });
+    skip = sinon.stub().returns({ limit });
     crud = {
-      find: sinon.stub().returns({ skip : skip })
+      find: sinon.stub().returns({ skip })
     };
     options = {
       getCrudModel: () => crud,
@@ -51,6 +51,39 @@ describe('crud-middleware find operation', ()=> {
     crudMiddlewareInstance = crudMiddleware(options);
     crudMiddlewareInstance.find(req, res).then(found => {
       expect(options.find.getConditions.firstCall.args[0]).to.deep.equal(transformedRequestBody);
+      done();
+    });
+  });
+
+  it('should get the skip and limit search controls from the data provided by the getReqBody function', done => {
+    const reqBody = { my: 'data', skip: 1, limit: 10 };
+    options.find.getReqBody = () => reqBody;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crudMiddlewareInstance.find(req, res).then(found => {
+      expect(skip.firstCall.args[0]).to.equal(reqBody.skip);
+      expect(limit.firstCall.args[0]).to.equal(reqBody.limit);
+      done();
+    });
+  });
+
+  it('should default skip to 0', done => {
+    const reqBody = { my: 'data', limit: 10 };
+    options.find.getReqBody = () => reqBody;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crudMiddlewareInstance.find(req, res).then(found => {
+      expect(skip.firstCall.args[0]).to.equal(0);
+      expect(limit.firstCall.args[0]).to.equal(reqBody.limit);
+      done();
+    });
+  });
+
+  it('should default limit to 20', done => {
+    const reqBody = { my: 'data', skip: 2 };
+    options.find.getReqBody = () => reqBody;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crudMiddlewareInstance.find(req, res).then(found => {
+      expect(skip.firstCall.args[0]).to.equal(reqBody.skip);
+      expect(limit.firstCall.args[0]).to.equal(20);
       done();
     });
   });
