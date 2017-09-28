@@ -88,6 +88,17 @@ describe('crud-middleware find operation', ()=> {
     });
   });
 
+  it('should allow the skip and limit search controls to come from the querystring', done => {
+    const query = { skip: 1, limit: 10 };
+    options.find.getControlsFrom = () => query;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crudMiddlewareInstance.find(req, res).then(found => {
+      expect(skip.firstCall.args[0]).to.equal(query.skip);
+      expect(limit.firstCall.args[0]).to.equal(query.limit);
+      done();
+    });
+  });
+
   it('should respond with any unexpected error encountered when finding models', done => {
     exec.returns(Promise.reject(expectedError));
     crudMiddlewareInstance.find(req, res).catch(err => {

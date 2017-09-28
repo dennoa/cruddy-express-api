@@ -162,6 +162,7 @@ The getIdParameters method takes an object that overrides the default behaviour:
         rules: {},
         getReqBody: req => req.body,
         getControls: body => _.merge({ skip: 0, limit: 20 }, _.pick(body, ['skip', 'limit'])),
+        getControlsFrom: (req, res) => null,
         getConditions: () => null
       },
       get: {
@@ -184,6 +185,7 @@ The getIdParameters method takes an object that overrides the default behaviour:
 * find.getReqBody can be overridden if you need to pass something other than req.body to the find and count operations.
 * find.rules are the validation rules that will be passed to validateRequest on find and count. See below for notes on rules.
 * find.getControls is a function that is passed the req.body and returns { skip, limit } to be appended to the query returned from crudModel.find.
+* find.getControlsFrom is a function that is passed the req and res and returns { skip, limit } as above. It takes precedence to getControls. If it returns null or undefined then getControls will be called.
 * find.getConditions is a function that is passed the req.body and returns the relevant mongoose conditions for the find operation.
 * get.rules are the validation rules that will be passed to validateRequest on get. The default rule verifies the reqParamId value is a mongo id. See below for notes on rules.
 * remove.rules are the validation rules that will be passed to validateRequest on remove. The default rule verifies the reqParamId value is a mongo id. See below for notes on rules.
