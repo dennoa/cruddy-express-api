@@ -11,7 +11,7 @@ describe('crud-middleware find operation', ()=> {
   let skip, limit, exec;
 
   beforeEach(()=> {
-    req = { body: {} };
+    req = { body: {}, query: {} };
     res = { status: sinon.stub().returns({ json: sinon.stub() })};
     exec = sinon.stub().returns(Promise.resolve([]));
     limit = sinon.stub().returns({ exec });
@@ -89,12 +89,12 @@ describe('crud-middleware find operation', ()=> {
   });
 
   it('should allow the skip and limit search controls to come from the querystring', done => {
-    const query = { skip: 1, limit: 10 };
-    options.find.getControlsFrom = () => query;
+    req.query = { skip: 1, limit: 10 };
+    options.find.useControlsFromQuery = true;
     crudMiddlewareInstance = crudMiddleware(options);
     crudMiddlewareInstance.find(req, res).then(found => {
-      expect(skip.firstCall.args[0]).to.equal(query.skip);
-      expect(limit.firstCall.args[0]).to.equal(query.limit);
+      expect(skip.firstCall.args[0]).to.equal(req.query.skip);
+      expect(limit.firstCall.args[0]).to.equal(req.query.limit);
       done();
     });
   });
