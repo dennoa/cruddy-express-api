@@ -89,12 +89,12 @@ describe('crud-middleware find operation', ()=> {
   });
 
   it('should allow the skip and limit search controls to come from the querystring', done => {
-    req.query = { skip: 1, limit: 10 };
+    req.query = { skip: '1', limit: '10' };
     options.find.useControlsFromQuery = true;
     crudMiddlewareInstance = crudMiddleware(options);
     crudMiddlewareInstance.find(req, res).then(found => {
-      expect(skip.firstCall.args[0]).to.equal(req.query.skip);
-      expect(limit.firstCall.args[0]).to.equal(req.query.limit);
+      expect(skip.firstCall.args[0]).to.equal(1);
+      expect(limit.firstCall.args[0]).to.equal(10);
       done();
     });
   });
