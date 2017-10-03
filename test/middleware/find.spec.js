@@ -17,7 +17,7 @@ describe('crud-middleware find operation', ()=> {
     limit = sinon.stub().returns({ exec });
     skip = sinon.stub().returns({ limit });
     crud = {
-      find: sinon.stub().returns({ skip })
+      find: sinon.stub().returns({ skip, exec })
     };
     options = {
       getCrudModel: () => crud,
@@ -95,6 +95,16 @@ describe('crud-middleware find operation', ()=> {
     crudMiddlewareInstance.find(req, res).then(found => {
       expect(skip.firstCall.args[0]).to.equal(1);
       expect(limit.firstCall.args[0]).to.equal(10);
+      done();
+    });
+  });
+
+  it('should allow the skip and limit search controls to be omitted completely', done => {
+    options.find.omitControls = true;
+    crudMiddlewareInstance = crudMiddleware(options);
+    crudMiddlewareInstance.find(req, res).then(found => {
+      expect(skip.called).to.equal(false);
+      expect(limit.called).to.equal(false);
       done();
     });
   });
