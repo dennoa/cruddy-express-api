@@ -123,9 +123,8 @@ describe('swagger docs', ()=> {
   it('should allow search controls to be specified in the querystring', () => {
     options.useControlsFromQuery = true;
     const docs = crudSwagger(options).docs;
-    const parameter = docs.paths['/my-entity/find'].post.parameters[1];
-    expect(parameter.in).to.equal('query');
-    expect(parameter.schema).to.deep.equal({ '$ref': '#/definitions/my-entity-search-controls' });
+    const parameters = docs.paths['/my-entity/find'].post.parameters;
+    expect(parameters.filter(param => param.in === 'query').length).to.equal(2);
   });
 
   it('should expose the configured options', ()=> {
